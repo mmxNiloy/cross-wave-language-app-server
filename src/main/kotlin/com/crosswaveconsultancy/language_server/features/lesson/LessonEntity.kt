@@ -11,12 +11,17 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
+import org.hibernate.annotations.SQLRestriction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "lesson")
+@Table(name = "lesson", uniqueConstraints = [
+    UniqueConstraint(columnNames = ["chapter_id", "order_index"])
+])
+@SQLRestriction("is_active = true")
 data class LessonEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
