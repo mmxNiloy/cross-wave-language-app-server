@@ -8,4 +8,5 @@ data class LanguageResponseDto(
     val shortCode: String,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
+    val isActive: Boolean,
 )
