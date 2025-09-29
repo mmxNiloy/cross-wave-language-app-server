@@ -12,6 +12,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.SQLRestriction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.sql.Timestamp
@@ -19,6 +20,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(name="language_module")
+@SQLRestriction("is_active = true")
 data class ModuleEntity (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,7 +52,7 @@ data class ModuleEntity (
             createdAt = createdAt?:LocalDateTime.now(),
             updatedAt = updatedAt?:LocalDateTime.now(),
             languageId = languageId,
-            language = language?.toDto()
+            language = language?.toMinimalDto()
         )
     }
 

@@ -1,6 +1,6 @@
 package com.crosswaveconsultancy.language_server.features.language
 
-import com.crosswaveconsultancy.language_server.features.language.dto.LangaugeResponseMinimalDto
+import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseMinimalDto
 import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -11,7 +11,6 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.SQLRestriction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
-import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @Entity
@@ -42,8 +41,8 @@ data class LanguageEntity(
         )
     }
 
-    fun toMinimalDto(): LangaugeResponseMinimalDto {
-        return LangaugeResponseMinimalDto(
+    fun toMinimalDto(): LanguageResponseMinimalDto {
+        return LanguageResponseMinimalDto(
             name = name,
             shortCode = shortCode
         )

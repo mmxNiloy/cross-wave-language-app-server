@@ -1,6 +1,6 @@
 package com.crosswaveconsultancy.language_server.features.module.dto
 
-import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseDto
+import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseMinimalDto
 import java.time.LocalDateTime
 
 data class ModuleResponseDto(
@@ -11,5 +11,5 @@ data class ModuleResponseDto(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val languageId: Long,
-    val language: LanguageResponseDto?
+    val language: LanguageResponseMinimalDto?
 )
