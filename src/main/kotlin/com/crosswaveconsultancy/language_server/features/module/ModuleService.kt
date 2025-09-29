@@ -27,11 +27,7 @@ class ModuleService(
     }
 
     fun save(createModuleDto: CreateModuleDto): ModuleEntity {
-        val moduleEntity = ModuleEntity(
-            title = createModuleDto.title,
-            description = createModuleDto.description?:"",
-            languageId = createModuleDto.languageId
-        )
+        val moduleEntity = createModuleDto.toEntity()
         return moduleRepository.save(moduleEntity)
     }
 
@@ -46,8 +42,11 @@ class ModuleService(
     fun update(id: Long, updateModuleDto: UpdateModuleDto): ModuleEntity {
         val moduleEntity = findById(id)
 
+        if(updateModuleDto.title != null)
         moduleEntity.title = updateModuleDto.title
+        if(updateModuleDto.description != null)
         moduleEntity.description = updateModuleDto.description
+        if(updateModuleDto.languageId != null)
         moduleEntity.languageId = updateModuleDto.languageId
 
         return moduleRepository.save(moduleEntity)

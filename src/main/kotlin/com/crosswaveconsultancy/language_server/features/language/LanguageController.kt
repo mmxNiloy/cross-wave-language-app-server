@@ -90,7 +90,7 @@ class LanguageController(
     }
 
     @PatchMapping("/{id}")
-    fun updateLanguage(@PathVariable @Min(1) id: Long, @RequestBody updateLanguageDto: UpdateLanguageDto): ApiResponse<LanguageResponseDto> {
+    fun updateLanguage(@PathVariable @Min(1) id: Long, @Valid @RequestBody updateLanguageDto: UpdateLanguageDto): ApiResponse<LanguageResponseDto> {
         var payload = languageService.update(id, updateLanguageDto)
         return ApiResponse<LanguageResponseDto>(
             status = 200,

@@ -21,10 +21,12 @@ import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "course",
+@Table(
+    name = "course",
     uniqueConstraints = [
         UniqueConstraint(columnNames = ["module_id", "order_index"])
-    ])
+    ]
+)
 @SQLRestriction("is_active = true")
 data class CourseEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +34,7 @@ data class CourseEntity(
     var title: String,
     var description: String,
     var orderIndex: Int,
-    var isActive: Boolean,
+    var isActive: Boolean=true,
 
     @CreatedDate
     @Column(name = "created_at", insertable = false, updatable = false)
@@ -42,7 +44,7 @@ data class CourseEntity(
     @Column(name = "updated_at")
     val updatedAt: LocalDateTime? = LocalDateTime.now(),
 
-    @Column(name="module_id")
+    @Column(name = "module_id")
     val moduleId: Long,
 
     @ManyToOne(cascade = [CascadeType.ALL])
@@ -56,8 +58,8 @@ data class CourseEntity(
             description = description,
             orderIndex = orderIndex,
             isActive = isActive,
-            createdAt = createdAt?:LocalDateTime.now(),
-            updatedAt = updatedAt?:LocalDateTime.now(),
+            createdAt = createdAt ?: LocalDateTime.now(),
+            updatedAt = updatedAt ?: LocalDateTime.now(),
             moduleId = moduleId,
             module = module?.toDto()
         )

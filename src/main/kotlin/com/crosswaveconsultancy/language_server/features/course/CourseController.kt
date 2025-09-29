@@ -90,7 +90,7 @@ class CourseController(
     }
 
     @PostMapping
-    fun createCourse(@RequestBody courseDto: CreateCourseDto): ResponseEntity<ApiResponse<CourseResponseDto>> {
+    fun createCourse(@Valid @RequestBody courseDto: CreateCourseDto): ResponseEntity<ApiResponse<CourseResponseDto>> {
         val payload = courseService.save(courseDto)
         return ResponseEntity.status(HttpStatus.CREATED).body(
             ApiResponse(
@@ -117,7 +117,7 @@ class CourseController(
     }
 
     @PatchMapping("/{id}")
-    fun updateCourse(@PathVariable id: Long, @RequestBody courseDto: UpdateCourseDto): ApiResponse<CourseResponseDto> {
+    fun updateCourse(@PathVariable id: Long, @Valid @RequestBody courseDto: UpdateCourseDto): ApiResponse<CourseResponseDto> {
         val payload = courseService.update(id, courseDto)
         return ApiResponse(
             status = 200,

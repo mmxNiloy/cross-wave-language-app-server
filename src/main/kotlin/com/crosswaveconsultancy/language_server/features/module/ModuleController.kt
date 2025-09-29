@@ -2,7 +2,6 @@ package com.crosswaveconsultancy.language_server.features.module
 
 import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
-import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
 import com.crosswaveconsultancy.language_server.features.module.dto.CreateModuleDto
 import com.crosswaveconsultancy.language_server.features.module.dto.ModuleResponseDto
 import com.crosswaveconsultancy.language_server.features.module.dto.UpdateModuleDto
@@ -11,7 +10,6 @@ import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springdoc.core.annotations.ParameterObject
-import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -97,9 +94,9 @@ class ModuleController(
     @PatchMapping("/{id}")
     fun updateModule(
         @PathVariable id: Long,
-        @RequestBody createModuleDto: UpdateModuleDto
+        @Valid @RequestBody updateModuleDto: UpdateModuleDto
     ): ResponseEntity<ApiResponse<ModuleResponseDto>> {
-        val payload = moduleService.update(id, createModuleDto);
+        val payload = moduleService.update(id, updateModuleDto);
 
         return ResponseEntity.ok(
             ApiResponse<ModuleResponseDto>(

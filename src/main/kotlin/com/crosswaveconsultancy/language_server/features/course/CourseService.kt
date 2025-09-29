@@ -40,13 +40,7 @@ class CourseService(
 
     @Transactional
     fun save(course: CreateCourseDto): CourseEntity {
-        val courseEntity = CourseEntity(
-            title = course.title,
-            description = course.description,
-            orderIndex = course.orderIndex,
-            isActive = true,
-            moduleId = course.moduleId
-        )
+        val courseEntity = course.toEntity()
 
         // Check if a record with the given order index exists
         val hasConflict = courseRepository.existsByModuleIdAndOrderIndex(course.moduleId, course.orderIndex)
