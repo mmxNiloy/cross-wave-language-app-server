@@ -1,0 +1,144 @@
+package com.crosswaveconsultancy.language_server.features.course
+
+import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
+import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseDto
+import com.crosswaveconsultancy.language_server.features.course.dto.CreateCourseDto
+import com.crosswaveconsultancy.language_server.features.course.dto.UpdateCourseDto
+import com.crosswaveconsultancy.language_server.util.ApiResponse
+import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
+import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
+import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import org.springdoc.core.annotations.ParameterObject
+import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/v1/course")
+@Validated
+class CourseController(
+    private val courseService: CourseService
+) {
+    @GetMapping
+    fun getCourses(
+        @Valid @ParameterObject params: PaginationRequestParamsDto
+    ): ApiResponsePaginated<CourseResponseDto> {
+        val page = params.page?:1
+        val limit = params.limit?:10
+        val payload = courseService.getCourses(page, limit).map { it.toDto() }
+        val totalCount = courseService.count()
+        val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
+        return ApiResponsePaginated<CourseResponseDto>(
+            ok = true,
+            status = 200,
+            message = "Courses fetched successfully",
+            payload = payload,
+            path = "/v1/course",
+            paginationMetadata = paginationMetadata
+        )
+    }
+
+    @GetMapping("/module/{moduleId}")
+    fun getCourseByModuleId(
+        @Valid @ParameterObject params: PaginationRequestParamsDto,
+        @PathVariable @Min(1) moduleId: Long
+    ): ApiResponsePaginated<CourseResponseDto> {
+        val page = params.page?:1
+        val limit = params.limit?:10
+
+        val payload = courseService.getCourseByModuleId(moduleId, page, limit).map { it.toDto() }
+        val totalCount = courseService.countByModuleId(moduleId)
+        val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
+        return ApiResponsePaginated<CourseResponseDto>(
+            ok = true,
+            status = 200,
+            message = "Courses fetched successfully",
+            payload = payload,
+            path = "/v1/course/module/$moduleId",
+            paginationMetadata = paginationMetadata
+        )
+    }
+
+    @GetMapping("/{id}")
+    fun getCourseById(@PathVariable @Min(1) id: Long): ApiResponse<CourseResponseDto> {
+        val payload = courseService.getCourseById(id)
+
+        if (payload.isEmpty) {
+            throw ResourceNotFoundException("Course not found with id $id")
+        }
+
+        return ApiResponse(
+            status = 200,
+            ok = true,
+            message = "Course fetched successfully",
+            payload = payload.get().toDto(),
+            path = "/v1/course/$id"
+        )
+    }
+
+    @PostMapping
+    fun createCourse(@RequestBody courseDto: CreateCourseDto): ResponseEntity<ApiResponse<CourseResponseDto>> {
+        val payload = courseService.save(courseDto)
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResponse(
+                status = 201,
+                ok = true,
+                message = "Course created successfully",
+                payload = payload.toDto(),
+                path = "/v1/course"
+            )
+        )
+    }
+
+
+    @PatchMapping("/restore/{id}")
+    fun restoreCourse(@PathVariable id: Long): ApiResponse<CourseResponseDto> {
+        val payload = courseService.toggle(id, true)
+        return ApiResponse(
+            status = 200,
+            ok = true,
+            message = "Course restored successfully",
+            path = "/v1/course/$id",
+            payload = payload.toDto()
+        )
+    }
+
+    @PatchMapping("/{id}")
+    fun updateCourse(@PathVariable id: Long, @RequestBody courseDto: UpdateCourseDto): ApiResponse<CourseResponseDto> {
+        val payload = courseService.update(id, courseDto)
+        return ApiResponse(
+            status = 200,
+            ok = true,
+            message = "Course updated successfully",
+            payload = payload.toDto(),
+            path = "/v1/course/$id"
+        )
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteCourse(@PathVariable id: Long): ResponseEntity<ApiResponse<String>> {
+        courseService.toggle(id, false)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            ApiResponse(
+                status = 204,
+                ok = true,
+                message = "Course deleted successfully",
+                path = "/v1/course/$id",
+                payload = "Course deleted successfully"
+            )
+        )
+    }
+}
