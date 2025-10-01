@@ -14,7 +14,7 @@ class LessonService(
     private val lessonRepository: LessonRepository
 ) {
     fun getLessons(page: Int, limit: Int): List<LessonEntity> {
-        val pageable: Pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
+        val pageable: Pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
         return lessonRepository.findAll(pageable).toList()
     }
 
@@ -23,7 +23,7 @@ class LessonService(
     }
 
     fun getLessonsByChapterId(chapterId: Long, page: Int, limit: Int): List<LessonEntity> {
-        val pageable: Pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
+        val pageable: Pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
         return lessonRepository.findByChapterId(chapterId, pageable).toList()
     }
 
@@ -64,7 +64,9 @@ class LessonService(
                 orderIndex
             ) else false
         if (hasConflict && orderIndex != null) {
-            lessonRepository.shiftOrderIndexes(chapterId, orderIndex)
+            if (orderIndex < lesson.orderIndex)
+                lessonRepository.shiftUpIndexes(chapterId, orderIndex, lesson.orderIndex)
+            else lessonRepository.shiftDownIndexes(chapterId, orderIndex, lesson.orderIndex)
         }
 
         if (lessonDto.title != null)

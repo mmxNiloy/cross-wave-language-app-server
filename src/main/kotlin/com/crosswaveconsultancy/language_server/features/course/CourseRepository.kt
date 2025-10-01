@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.util.Optional
 
-interface CourseRepository: JpaRepository<CourseEntity, Long> {
+interface CourseRepository : JpaRepository<CourseEntity, Long> {
     fun findByModuleId(moduleId: Long, pageable: Pageable): Page<CourseEntity>
     fun findByModuleIdAndOrderIndex(moduleId: Long, orderIndex: Int): Optional<CourseEntity>
     fun existsByModuleIdAndOrderIndex(moduleId: Long, orderIndex: Int): Boolean
@@ -26,5 +26,37 @@ interface CourseRepository: JpaRepository<CourseEntity, Long> {
     fun shiftOrderIndexes(
         @Param("moduleId") moduleId: Long,
         @Param("orderIndex") orderIndex: Int
+    ): Int
+
+    @Modifying
+    @Query(
+        """
+    UPDATE CourseEntity c
+    SET c.orderIndex = c.orderIndex + 1
+    WHERE c.module.id = :moduleId
+      AND c.orderIndex >= :newIndex
+      AND c.orderIndex < :oldIndex
+"""
+    )
+    fun shiftUpIndexes(
+        @Param("moduleId") moduleId: Long,
+        @Param("newIndex") newIndex: Int,
+        @Param("oldIndex") oldIndex: Int
+    ): Int
+
+    @Modifying
+    @Query(
+        """
+    UPDATE CourseEntity c
+    SET c.orderIndex = c.orderIndex - 1
+    WHERE c.module.id = :moduleId
+      AND c.orderIndex > :oldIndex
+      AND c.orderIndex <= :newIndex
+"""
+    )
+    fun shiftDownIndexes(
+        @Param("moduleId") moduleId: Long,
+        @Param("oldIndex") oldIndex: Int,
+        @Param("newIndex") newIndex: Int
     ): Int
 }

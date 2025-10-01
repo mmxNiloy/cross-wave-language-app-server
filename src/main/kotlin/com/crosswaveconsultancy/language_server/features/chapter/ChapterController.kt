@@ -7,6 +7,7 @@ import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
 import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springdoc.core.annotations.ParameterObject
@@ -22,8 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "Chapter Management", description = "CRUD for chapters. Each chapter is associated with a course. Each chapter contains some lessons.")
 @RestController
-@RequestMapping("/v1/chapter")
+@RequestMapping("/api/v1/chapter")
 @Validated
 class ChapterController(
     private val chapterService: ChapterService

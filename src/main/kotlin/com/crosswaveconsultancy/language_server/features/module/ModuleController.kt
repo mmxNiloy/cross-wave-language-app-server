@@ -4,9 +4,11 @@ import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
 import com.crosswaveconsultancy.language_server.features.module.dto.CreateModuleDto
 import com.crosswaveconsultancy.language_server.features.module.dto.ModuleResponseDto
+import com.crosswaveconsultancy.language_server.features.module.dto.ModuleStatsDto
 import com.crosswaveconsultancy.language_server.features.module.dto.UpdateModuleDto
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
 import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springdoc.core.annotations.ParameterObject
@@ -22,8 +24,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(
+    name = "Module Management",
+    description = "CRUD for modules. A module represents a language tutorial; ie: English language tutorial, Japanese language tutorial, French language tutorial, etc. A module contains some courses."
+)
 @RestController
-@RequestMapping("/v1/module")
+@RequestMapping("/api/v1/module")
 @Validated
 class ModuleController(
     private val moduleService: ModuleService,
@@ -58,6 +64,19 @@ class ModuleController(
             message = "Module fetched successfully",
             payload = payload.toDto(),
             path = "/v1/module/$id"
+        )
+    }
+
+    @GetMapping("/{id}/stat")
+    fun getModuleStats(@PathVariable @Min(1) id: Long): ApiResponse<ModuleStatsDto> {
+        val payload = moduleService.getModuleStats(id)
+
+        return ApiResponse<ModuleStatsDto>(
+            ok = true,
+            status = 200,
+            message = "Module stats fetched successfully",
+            payload = payload,
+            path = "/v1/module/$id/stat"
         )
     }
 
@@ -123,4 +142,5 @@ class ModuleController(
                 )
             )
     }
+
 }

@@ -54,30 +54,38 @@ class CourseService(
 
     @Transactional
     fun update(id: Long, courseDto: UpdateCourseDto): CourseEntity {
-        val courseEntity = courseRepository.findById(id).orElseThrow { ResourceNotFoundException("Course not found with id $id") }
+        val courseEntity =
+            courseRepository.findById(id).orElseThrow { ResourceNotFoundException("Course not found with id $id") }
 
         var course = courseEntity
 
         val moduleId = course.moduleId
         val orderIndex = courseDto.orderIndex
 
-        val hasConflict = if (orderIndex != null && orderIndex != course.orderIndex) courseRepository.existsByModuleIdAndOrderIndex(moduleId, orderIndex) else false
+        val hasConflict =
+            if (orderIndex != null && orderIndex != course.orderIndex) courseRepository.existsByModuleIdAndOrderIndex(
+                moduleId,
+                orderIndex
+            ) else false
 
         if (hasConflict && orderIndex != null) {
-            courseRepository.shiftOrderIndexes(moduleId, orderIndex)
+            if (orderIndex < course.orderIndex)
+                courseRepository.shiftUpIndexes(moduleId, orderIndex, course.orderIndex)
+            else courseRepository.shiftDownIndexes(moduleId, orderIndex, course.orderIndex)
         }
 
-        if(courseDto.title != null) course.title = courseDto.title
-        if(courseDto.description != null) course.description = courseDto.description
-        if(courseDto.orderIndex != null) course.orderIndex = courseDto.orderIndex
+        if (courseDto.title != null) course.title = courseDto.title
+        if (courseDto.description != null) course.description = courseDto.description
+        if (courseDto.orderIndex != null) course.orderIndex = courseDto.orderIndex
 
         return courseRepository.save(course)
     }
 
     @Transactional
     fun toggle(id: Long, isActive: Boolean): CourseEntity {
-        val course = courseRepository.findById(id).orElseThrow { ResourceNotFoundException("Course not found with id $id") }
-        course.isActive=isActive
+        val course =
+            courseRepository.findById(id).orElseThrow { ResourceNotFoundException("Course not found with id $id") }
+        course.isActive = isActive
         return courseRepository.save(course)
     }
 }

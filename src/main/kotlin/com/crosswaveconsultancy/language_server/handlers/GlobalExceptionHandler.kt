@@ -1,6 +1,7 @@
 package com.crosswaveconsultancy.language_server.handlers
 
 import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
+import com.crosswaveconsultancy.language_server.exceptions.UnauthorizedException
 import com.crosswaveconsultancy.language_server.util.ApiError
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
@@ -30,11 +31,14 @@ class GlobalExceptionHandler {
 
     // 400 - Constraint violation
     @ExceptionHandler(ConstraintViolationException::class)
-    fun handleConstraintViolationException(ex: ConstraintViolationException, request: HttpServletRequest): ResponseEntity<ApiError> {
+    fun handleConstraintViolationException(
+        ex: ConstraintViolationException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiError> {
         val errors = ex.constraintViolations.map { it.message }
         val error = ApiError(
             status = HttpStatus.BAD_REQUEST.value(),
-            message = ex.message?:"Constraint violation",
+            message = ex.message ?: "Constraint violation",
             path = request.requestURI,
             errors = errors
         )
@@ -55,6 +59,40 @@ class GlobalExceptionHandler {
             errors = errors
         )
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error)
+    }
+
+    // 401 - Unauthorized Access
+    @ExceptionHandler(UnauthorizedException::class)
+    fun handleValidation(
+        ex: UnauthorizedException,
+        request: HttpServletRequest
+    ): ResponseEntity<ApiError> {
+        val error = ApiError(
+            status = HttpStatus.UNAUTHORIZED.value(),
+            message = ex.message ?: "You don't have permission to access this resource",
+            path = request.requestURI,
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error)
+    }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException::class)
+    fun handleAccessDenied(ex: org.springframework.security.access.AccessDeniedException, request: HttpServletRequest): ResponseEntity<ApiError> {
+        val error = ApiError(
+            status = HttpStatus.UNAUTHORIZED.value(),
+            message = ex.message ?: "You don't have permission to access this resource",
+            path = request.requestURI,
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error)
+    }
+
+    @ExceptionHandler(org.springframework.security.authentication.AuthenticationCredentialsNotFoundException::class)
+    fun handleAuthMissing(ex: org.springframework.security.authentication.AuthenticationCredentialsNotFoundException, request: HttpServletRequest): ResponseEntity<ApiError> {
+        val error = ApiError(
+            status = HttpStatus.UNAUTHORIZED.value(),
+            message = ex.message ?: "Unauthorized! Invalid or missing authorization token.",
+            path = request.requestURI,
+        )
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error)
     }
 
     // 404 - Resource not found

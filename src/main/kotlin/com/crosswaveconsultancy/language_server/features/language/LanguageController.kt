@@ -7,6 +7,7 @@ import com.crosswaveconsultancy.language_server.features.language.dto.LanguageRe
 import com.crosswaveconsultancy.language_server.features.language.dto.UpdateLanguageDto
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
 import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springdoc.core.annotations.ParameterObject
@@ -22,8 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "Language Management", description = "CRUD for languages. Each language is associated with a module. Languages are simple records that define the language name and code. Modules define a tutorial pack for a language.")
 @RestController
-@RequestMapping("/v1/language")
+@RequestMapping("/api/v1/language")
 @Validated
 class LanguageController(
     private val languageService: LanguageService

@@ -1,10 +1,15 @@
 package com.crosswaveconsultancy.language_server.features.module
 
 import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
+import com.crosswaveconsultancy.language_server.features.chapter.ChapterRepository
+import com.crosswaveconsultancy.language_server.features.course.CourseRepository
 import com.crosswaveconsultancy.language_server.features.language.LanguageEntity
 import com.crosswaveconsultancy.language_server.features.language.LanguageRepository
+import com.crosswaveconsultancy.language_server.features.lesson.LessonRepository
 import com.crosswaveconsultancy.language_server.features.module.dto.CreateModuleDto
+import com.crosswaveconsultancy.language_server.features.module.dto.ModuleStatsDto
 import com.crosswaveconsultancy.language_server.features.module.dto.UpdateModuleDto
+import com.crosswaveconsultancy.language_server.features.slide.repository.SlideRepository
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
@@ -14,8 +19,10 @@ import java.util.Optional
 @Service
 class ModuleService(
     private val moduleRepository: ModuleRepository,
-    private val languageRepository: LanguageRepository,
-    private val entityManager: EntityManager
+    private val courseRepository: CourseRepository,
+    private val chapterRepository: ChapterRepository,
+    private val lessonRepository: LessonRepository,
+    private val slideRepository: SlideRepository
 ) {
     fun findById(id: Long): ModuleEntity {
         return moduleRepository.findById(id).orElseThrow { ResourceNotFoundException("Module not found with id $id") }
@@ -57,5 +64,20 @@ class ModuleService(
         val moduleEntity = findById(id)
         moduleEntity.isActive = isActive
         return moduleRepository.save(moduleEntity)
+    }
+
+    @Transactional
+    fun getModuleStats(id: Long): ModuleStatsDto {
+        val totalCourses = courseRepository.countByModuleId(id)
+        val totalChapters = chapterRepository.countByCourse_ModuleId(id)
+        val totalLessons = lessonRepository.countByChapter_Course_ModuleId(id)
+        val totalSlides = -1L
+
+        return ModuleStatsDto(
+            totalCourses = totalCourses,
+            totalChapters = totalChapters,
+            totalLessons = totalLessons,
+            totalSlides = totalSlides
+        )
     }
 }

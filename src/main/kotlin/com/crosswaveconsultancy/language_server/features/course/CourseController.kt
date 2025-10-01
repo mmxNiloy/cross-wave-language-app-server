@@ -8,6 +8,7 @@ import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
 import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -26,8 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "Course Management", description = "CRUD for courses. Each course is associated with a module. A course contains some chapters.")
 @RestController
-@RequestMapping("/v1/course")
+@RequestMapping("/api/v1/course")
 @Validated
 class CourseController(
     private val courseService: CourseService

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface LessonRepository: JpaRepository<LessonEntity, Long> {
+interface LessonRepository : JpaRepository<LessonEntity, Long> {
     fun findByChapterId(chapterId: Long, pageable: Pageable): Page<LessonEntity>
     fun countByChapterId(chapterId: Long): Long
 
@@ -25,4 +25,38 @@ interface LessonRepository: JpaRepository<LessonEntity, Long> {
         @Param("chapterId") chapterId: Long,
         @Param("orderIndex") orderIndex: Int
     ): Int
+
+    @Modifying
+    @Query(
+        """
+    UPDATE LessonEntity c
+    SET c.orderIndex = c.orderIndex + 1
+    WHERE c.chapter.id = :chapterId
+      AND c.orderIndex >= :newIndex
+      AND c.orderIndex < :oldIndex
+"""
+    )
+    fun shiftUpIndexes(
+        @Param("chapterId") chapterId: Long,
+        @Param("newIndex") newIndex: Int,
+        @Param("oldIndex") oldIndex: Int
+    ): Int
+
+    @Modifying
+    @Query(
+        """
+    UPDATE LessonEntity c
+    SET c.orderIndex = c.orderIndex - 1
+    WHERE c.chapter.id = :chapterId
+      AND c.orderIndex > :oldIndex
+      AND c.orderIndex <= :newIndex
+"""
+    )
+    fun shiftDownIndexes(
+        @Param("chapterId") chapterId: Long,
+        @Param("oldIndex") oldIndex: Int,
+        @Param("newIndex") newIndex: Int
+    ): Int
+
+    fun countByChapter_Course_ModuleId(moduleId: Long): Long
 }

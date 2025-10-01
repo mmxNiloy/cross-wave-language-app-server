@@ -13,7 +13,7 @@ class ChapterService(
     private val chapterRepository: ChapterRepository
 ) {
     fun getChapters(page: Int, limit: Int): List<ChapterEntity> {
-        val pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
+        val pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
         return chapterRepository.findAll(pageable).toList()
     }
 
@@ -26,7 +26,7 @@ class ChapterService(
     }
 
     fun getChaptersByCourseId(courseId: Long, page: Int, limit: Int): List<ChapterEntity> {
-        val pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
+        val pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
         return chapterRepository.findByCourseId(courseId, pageable).toList()
     }
 
@@ -63,9 +63,15 @@ class ChapterService(
         val courseId = chapter.courseId
         val orderIndex = chapterDto.orderIndex
 
-        val hasConflict = if (orderIndex != null && orderIndex != chapter.orderIndex) chapterRepository.existsByCourseIdAndOrderIndex(courseId, orderIndex) else false
+        val hasConflict =
+            if (orderIndex != null && orderIndex != chapter.orderIndex) chapterRepository.existsByCourseIdAndOrderIndex(
+                courseId,
+                orderIndex
+            ) else false
         if (hasConflict && orderIndex != null) {
-            chapterRepository.shiftOrderIndexes(courseId, orderIndex)
+            if (orderIndex < chapter.orderIndex)
+                chapterRepository.shiftUpIndexes(courseId, orderIndex, chapter.orderIndex)
+            else chapterRepository.shiftDownIndexes(courseId, orderIndex, chapter.orderIndex)
         }
 
         if (chapterDto.title != null)
