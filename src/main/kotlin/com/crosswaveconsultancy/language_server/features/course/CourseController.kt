@@ -10,24 +10,18 @@ import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
 import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.springdoc.core.annotations.ParameterObject
-import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Course Management", description = "CRUD for courses. Each course is associated with a module. A course contains some chapters.")
+@Tag(
+    name = "Course Management",
+    description = "CRUD for courses. Each course is associated with a module. A course contains some chapters."
+)
 @RestController
 @RequestMapping("/api/v1/course")
 @Validated
@@ -38,8 +32,8 @@ class CourseController(
     fun getCourses(
         @Valid @ParameterObject params: PaginationRequestParamsDto
     ): ApiResponsePaginated<CourseResponseDto> {
-        val page = params.page?:1
-        val limit = params.limit?:10
+        val page = params.page ?: 1
+        val limit = params.limit ?: 10
         val payload = courseService.getCourses(page, limit).map { it.toDto() }
         val totalCount = courseService.count()
         val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
@@ -53,23 +47,23 @@ class CourseController(
         )
     }
 
-    @GetMapping("/module/{moduleId}")
-    fun getCourseByModuleId(
+    @GetMapping("/language/{languageCode}")
+    fun getCourseByLanguageCode(
         @Valid @ParameterObject params: PaginationRequestParamsDto,
-        @PathVariable @Min(1) moduleId: Long
+        @PathVariable @Size(min = 2, max = 2) languageCode: String
     ): ApiResponsePaginated<CourseResponseDto> {
-        val page = params.page?:1
-        val limit = params.limit?:10
+        val page = params.page ?: 1
+        val limit = params.limit ?: 10
 
-        val payload = courseService.getCourseByModuleId(moduleId, page, limit).map { it.toDto() }
-        val totalCount = courseService.countByModuleId(moduleId)
+        val payload = courseService.getCourseByLanguageCode(languageCode, page, limit).map { it.toDto() }
+        val totalCount = courseService.countByLanguageCode(languageCode)
         val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
-        return ApiResponsePaginated<CourseResponseDto>(
+        return ApiResponsePaginated(
             ok = true,
             status = 200,
             message = "Courses fetched successfully",
             payload = payload,
-            path = "/v1/course/module/$moduleId",
+            path = "/v1/course/language/$languageCode",
             paginationMetadata = paginationMetadata
         )
     }
@@ -119,7 +113,10 @@ class CourseController(
     }
 
     @PatchMapping("/{id}")
-    fun updateCourse(@PathVariable id: Long, @Valid @RequestBody courseDto: UpdateCourseDto): ApiResponse<CourseResponseDto> {
+    fun updateCourse(
+        @PathVariable id: Long,
+        @Valid @RequestBody courseDto: UpdateCourseDto
+    ): ApiResponse<CourseResponseDto> {
         val payload = courseService.update(id, courseDto)
         return ApiResponse(
             status = 200,

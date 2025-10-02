@@ -1,6 +1,6 @@
 package com.crosswaveconsultancy.language_server.features.course.dto
 
-import com.crosswaveconsultancy.language_server.features.module.dto.ModuleResponseDto
+import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseDto
 import java.time.LocalDateTime
 
 data class CourseResponseDto(
@@ -11,6 +11,6 @@ data class CourseResponseDto(
     val isActive: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val moduleId: Long,
-    val module: ModuleResponseDto?
+    val languageCode: String,
+    val language: LanguageResponseDto?
 )

@@ -14,7 +14,7 @@ fun CourseResponseDto.assertValidCourse() {
     assertThat(createdAt).isNotNull()
     assertThat(updatedAt).isNotNull()
     assertThat(moduleId).isNotNull()
-    module!!.assertValidModule()
+    language!!.assertValidModule()
 }
 
 fun CourseResponseMinimalDto.assertValidCourse() {

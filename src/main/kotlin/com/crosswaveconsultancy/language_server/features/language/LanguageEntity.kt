@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -17,10 +18,11 @@ import java.time.LocalDateTime
 @Table(name = "language")
 @SQLRestriction("is_active = true")
 data class LanguageEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-    var name: String,
-    var shortCode: String,
+    @Id
+    val shortCode: String,
+    var languageName: String,
+    var title: String = "",
+    var description: String = "",
     var isActive: Boolean=true,
     @CreatedDate
     @Column(name = "created_at", updatable = false, insertable = false)
@@ -32,19 +34,13 @@ data class LanguageEntity(
 ) {
     fun toDto(): LanguageResponseDto {
         return LanguageResponseDto(
-            id = id,
-            name = name,
+            languageName = languageName,
             shortCode = shortCode,
             createdAt = createdAt?:LocalDateTime.now(),
             updatedAt = updatedAt?:LocalDateTime.now(),
-            isActive = isActive
-        )
-    }
-
-    fun toMinimalDto(): LanguageResponseMinimalDto {
-        return LanguageResponseMinimalDto(
-            name = name,
-            shortCode = shortCode
+            isActive = isActive,
+            title = title,
+            description = description
         )
     }
 }

@@ -4,12 +4,14 @@ import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
 import com.crosswaveconsultancy.language_server.features.language.dto.CreateLanguageDto
 import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseDto
+import com.crosswaveconsultancy.language_server.features.language.dto.LanguageStatsDto
 import com.crosswaveconsultancy.language_server.features.language.dto.UpdateLanguageDto
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
 import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,7 +25,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-@Tag(name = "Language Management", description = "CRUD for languages. Each language is associated with a module. Languages are simple records that define the language name and code. Modules define a tutorial pack for a language.")
+@Tag(
+    name = "Language Management",
+    description = "CRUD for languages. Each language represents a module. Modules define a tutorial pack for a language."
+)
 @RestController
 @RequestMapping("/api/v1/language")
 @Validated
@@ -52,7 +57,7 @@ class LanguageController(
     }
 
     @GetMapping("/{id}")
-    fun getLanguage(@PathVariable @Min(1) id: Long): ApiResponse<LanguageResponseDto> {
+    fun getLanguage(@PathVariable @Size(min = 2, max = 2) id: String): ApiResponse<LanguageResponseDto> {
         var payload = languageService.getLanguageById(id)
 
         return ApiResponse<LanguageResponseDto>(
@@ -61,6 +66,19 @@ class LanguageController(
             message = "Language fetched successfully",
             payload = payload.toDto(),
             path = "/v1/language/$id"
+        )
+    }
+
+    @GetMapping("/{id}/stat")
+    fun getModuleStats(@PathVariable @Size(min = 2, max = 2) id: String): ApiResponse<LanguageStatsDto> {
+        val payload = languageService.getLanguageStats(id)
+
+        return ApiResponse(
+            ok = true,
+            status = 200,
+            message = "Language stats fetched successfully",
+            payload = payload,
+            path = "/v1/module/$id/stat"
         )
     }
 
@@ -80,7 +98,7 @@ class LanguageController(
     }
 
     @PatchMapping("/restore/{id}")
-    fun restoreLanguage(@PathVariable @Min(1) id: Long): ApiResponse<LanguageResponseDto> {
+    fun restoreLanguage(@PathVariable @Size(min = 2, max = 2) id: String): ApiResponse<LanguageResponseDto> {
         var payload = languageService.toggle(id, true)
         return ApiResponse<LanguageResponseDto>(
             status = 200,
@@ -92,7 +110,10 @@ class LanguageController(
     }
 
     @PatchMapping("/{id}")
-    fun updateLanguage(@PathVariable @Min(1) id: Long, @Valid @RequestBody updateLanguageDto: UpdateLanguageDto): ApiResponse<LanguageResponseDto> {
+    fun updateLanguage(
+        @PathVariable @Size(min = 2, max = 2) id: String,
+        @Valid @RequestBody updateLanguageDto: UpdateLanguageDto
+    ): ApiResponse<LanguageResponseDto> {
         var payload = languageService.update(id, updateLanguageDto)
         return ApiResponse<LanguageResponseDto>(
             status = 200,
@@ -104,15 +125,17 @@ class LanguageController(
     }
 
     @DeleteMapping("/{id}")
-    fun deleteLanguage(@PathVariable @Min(1) id: Long): ResponseEntity<ApiResponse<String>> {
+    fun deleteLanguage(@PathVariable @Size(min = 2, max = 2) id: String): ResponseEntity<ApiResponse<String>> {
         var payload = languageService.toggle(id, false)
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse(
-            ok = true,
-            status = 204,
-            message = "Language deleted successfully",
-            payload = "Language deleted successfully",
-            path = "/v1/language/$id"
-        ))
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+            ApiResponse(
+                ok = true,
+                status = 204,
+                message = "Language deleted successfully",
+                payload = "Language deleted successfully",
+                path = "/v1/language/$id"
+            )
+        )
     }
 }

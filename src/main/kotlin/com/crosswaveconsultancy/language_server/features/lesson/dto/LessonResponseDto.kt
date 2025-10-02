@@ -1,9 +1,6 @@
 package com.crosswaveconsultancy.language_server.features.lesson.dto
 
-import com.crosswaveconsultancy.language_server.features.chapter.ChapterEntity
-import com.crosswaveconsultancy.language_server.features.chapter.dto.ChapterResponseDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.ChapterResponseMinimalDto
-import com.crosswaveconsultancy.language_server.features.lesson.LessonEntity
 import java.time.LocalDateTime
 
 data class LessonResponseDto(

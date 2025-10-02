@@ -1,6 +1,5 @@
 package com.crosswaveconsultancy.language_server.features.chapter
 
-import com.crosswaveconsultancy.language_server.features.course.CourseEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -60,5 +59,5 @@ interface ChapterRepository : JpaRepository<ChapterEntity, Long> {
         @Param("newIndex") newIndex: Int
     ): Int
 
-    fun countByCourse_ModuleId(moduleId: Long): Long
+    fun countByCourse_LanguageCode(languageCode: String): Long
 }

@@ -2,17 +2,15 @@ package com.crosswaveconsultancy.language_server.features.course
 
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseDto
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseMinimalDto
-import com.crosswaveconsultancy.language_server.features.module.ModuleEntity
+import com.crosswaveconsultancy.language_server.features.language.LanguageEntity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
@@ -24,7 +22,7 @@ import java.time.LocalDateTime
 @Table(
     name = "course",
     uniqueConstraints = [
-        UniqueConstraint(columnNames = ["module_id", "order_index"])
+        UniqueConstraint(columnNames = ["language_code", "order_index"])
     ]
 )
 @SQLRestriction("is_active = true")
@@ -33,7 +31,7 @@ data class CourseEntity(
     val id: Long = 0,
     var title: String,
     var description: String,
-    var orderIndex: Int,
+    var orderIndex: Int=0,
     var isActive: Boolean=true,
 
     @CreatedDate
@@ -44,12 +42,12 @@ data class CourseEntity(
     @Column(name = "updated_at")
     val updatedAt: LocalDateTime? = LocalDateTime.now(),
 
-    @Column(name = "module_id")
-    val moduleId: Long,
+    @Column(name = "language_code")
+    val languageCode: String,
 
     @ManyToOne(cascade = [CascadeType.ALL])
-    @JoinColumn(name = "module_id", insertable = false, updatable = false)
-    val module: ModuleEntity? = null
+    @JoinColumn(name = "language_code", insertable = false, updatable = false)
+    val language: LanguageEntity? = null
 ) {
     fun toDto(): CourseResponseDto {
         return CourseResponseDto(
@@ -60,8 +58,8 @@ data class CourseEntity(
             isActive = isActive,
             createdAt = createdAt ?: LocalDateTime.now(),
             updatedAt = updatedAt ?: LocalDateTime.now(),
-            moduleId = moduleId,
-            module = module?.toDto()
+            languageCode = languageCode,
+            language = language?.toDto()
         )
     }
 

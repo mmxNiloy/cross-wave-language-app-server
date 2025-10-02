@@ -6,15 +6,20 @@ import jakarta.validation.constraints.Size
 
 data class CreateLanguageDto(
     @field:NotBlank
-    val name: String,
+    val languageName: String,
     @field:NotBlank
     @field:Size(min = 2, max = 2)
     val shortCode: String,
+    @field:NotBlank
+    val title: String,
+    val description: String?,
 ) {
     fun toEntity(): LanguageEntity {
         return LanguageEntity(
-            name = name,
+            languageName = languageName,
             shortCode = shortCode,
+            title = title,
+            description = description?:""
         )
     }
 }

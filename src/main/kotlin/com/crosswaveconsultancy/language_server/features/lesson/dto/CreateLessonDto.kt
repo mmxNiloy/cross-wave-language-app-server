@@ -3,7 +3,6 @@ package com.crosswaveconsultancy.language_server.features.lesson.dto
 import com.crosswaveconsultancy.language_server.features.lesson.LessonEntity
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
-import java.time.LocalDateTime
 
 data class CreateLessonDto(
     @field:NotBlank

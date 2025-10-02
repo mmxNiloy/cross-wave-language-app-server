@@ -5,8 +5,7 @@ import jakarta.validation.constraints.Size
 
 data class UpdateLanguageDto(
     @field:NotBlank
-    val name: String?,
-    @field:NotBlank
-    @field:Size(min = 2, max = 2)
-    val shortCode: String?,
+    val languageName: String?,
+    val title: String?,
+    val description: String?,
 )

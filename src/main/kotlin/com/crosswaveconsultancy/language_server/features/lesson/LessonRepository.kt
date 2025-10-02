@@ -58,5 +58,5 @@ interface LessonRepository : JpaRepository<LessonEntity, Long> {
         @Param("newIndex") newIndex: Int
     ): Int
 
-    fun countByChapter_Course_ModuleId(moduleId: Long): Long
+    fun countByChapter_Course_LanguageCode(languageCode: String): Long
 }
