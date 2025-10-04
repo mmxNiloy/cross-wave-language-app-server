@@ -1,6 +1,7 @@
 package com.crosswaveconsultancy.language_server.config
 
 import com.crosswaveconsultancy.language_server.exceptions.UnauthorizedException
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer
@@ -26,10 +27,13 @@ class SecurityConfig {
                 oauth2.jwt { jwt ->
                     jwt.jwtAuthenticationConverter { token ->
                         val authorities = (token.claims["role"] as? String)
-                            ?.let { listOf(SimpleGrantedAuthority(it)) }
+                            ?.let { listOf(SimpleGrantedAuthority("ROLE_${it.uppercase()}")) }
                             ?: emptyList()
                         JwtAuthenticationToken(token, authorities)
                     }
+                }.authenticationEntryPoint { request, response, authException ->
+                    authException.printStackTrace()
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.message)
                 }
             })
 

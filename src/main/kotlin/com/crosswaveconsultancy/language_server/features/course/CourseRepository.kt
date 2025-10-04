@@ -55,4 +55,23 @@ interface CourseRepository : JpaRepository<CourseEntity, Long> {
         @Param("oldIndex") oldIndex: Int,
         @Param("newIndex") newIndex: Int
     ): Int
+
+    @Query(
+        """
+            SELECT c.course.id, COUNT(*)
+            FROM ChapterEntity c
+            WHERE c.course.id IN :courseIds
+            GROUP BY c.course.id
+        """
+    )
+    fun countChaptersByCourseIds(@Param("courseIds") courseIds: List<Long>): List<Array<Long>>
+
+    @Query(
+        """
+            SELECT COUNT(*)
+            FROM ChapterEntity c
+            WHERE c.course.id = :courseId
+        """
+    )
+    fun countChaptersByCourseId(courseId: Long): Long
 }
