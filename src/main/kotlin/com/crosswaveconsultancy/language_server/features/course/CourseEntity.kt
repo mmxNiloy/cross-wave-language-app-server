@@ -4,10 +4,13 @@ import com.crosswaveconsultancy.language_server.features.chapter.ChapterEntity
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseDto
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseMinimalDto
 import com.crosswaveconsultancy.language_server.features.language.LanguageEntity
+import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EntityListeners
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -50,11 +53,13 @@ data class CourseEntity(
     @Column(name = "language_code")
     val languageCode: String,
 
-    @ManyToOne(cascade = [CascadeType.ALL])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "language_code", insertable = false, updatable = false)
+    @JsonBackReference
     val language: LanguageEntity? = null,
 
-    @OneToMany(mappedBy="course")
+    @OneToMany(mappedBy="course", fetch= FetchType.LAZY)
+    @JsonManagedReference
     val chapters: List<ChapterEntity> = emptyList()
 ) {
     fun toDto(chapterCount: Long?): CourseResponseDto {
@@ -99,7 +104,7 @@ data class CourseEntity(
             languageCode = languageCode,
             language = language?.toDto(),
             chapterCount = chapters.size.toLong(),
-            chapters = chapters.map { it.toDto() }
+            chapters = chapters.map { it.toMinimalDto() }
         )
     }
 

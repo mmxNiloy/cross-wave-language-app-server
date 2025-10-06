@@ -60,4 +60,14 @@ interface ChapterRepository : JpaRepository<ChapterEntity, Long> {
     ): Int
 
     fun countByCourse_LanguageCode(languageCode: String): Long
+
+    @Query(
+        """
+        SELECT l.chapter.id, COUNT(*)
+        FROM LessonEntity l
+        WHERE l.chapter.id IN :chapterIds
+        GROUP BY l.chapter.id
+        """
+    )
+    fun countLessonsByChapterIds(@Param("chapterIds") chapterIds: List<Long>): List<Array<Long>>
 }

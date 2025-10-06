@@ -1,6 +1,7 @@
 package com.crosswaveconsultancy.language_server.features.chapter.dto
 
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseMinimalDto
+import com.crosswaveconsultancy.language_server.features.lesson.dto.LessonResponseDto
 import java.time.LocalDateTime
 
 data class ChapterResponseDto(
@@ -10,8 +11,10 @@ data class ChapterResponseDto(
     val orderIndex: Int,
     val isActive: Boolean,
     val courseId: Long,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?,
+    val lessonCount: Long,
 
-    val course: CourseResponseMinimalDto?=null
+    val course: CourseResponseMinimalDto?=null,
+    val lessons: List<LessonResponseDto>?=null
 )

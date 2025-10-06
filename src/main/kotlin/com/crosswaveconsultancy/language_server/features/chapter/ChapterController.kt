@@ -2,7 +2,10 @@ package com.crosswaveconsultancy.language_server.features.chapter
 
 import com.crosswaveconsultancy.language_server.features.chapter.dto.ChapterResponseDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.CreateChapterDto
+import com.crosswaveconsultancy.language_server.features.chapter.dto.SwapChapterOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.UpdateChapterDto
+import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseDto
+import com.crosswaveconsultancy.language_server.features.course.dto.SwapCourseOrderIndexDto
 import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
@@ -13,6 +16,7 @@ import jakarta.validation.constraints.Min
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -34,7 +38,10 @@ class ChapterController(
     fun getChapters(@Valid @ParameterObject params: PaginationRequestParamsDto): ApiResponsePaginated<ChapterResponseDto> {
         val page = params.page?:1
         val limit = params.limit?:10
-        val payload = chapterService.getChapters(page, limit).map { it.toDto() }
+        val chapters = chapterService.getChapters(page, limit)
+        val lessonCount = chapterService.countLessonsByChapterIds(chapters.map { it.id })
+        var lessonCountMap = lessonCount.associate { (chapterId, count) -> chapterId to count }
+        val payload = chapters.map { it.toDto(lessonCountMap[it.id] ?: 0) }
         val totalCount = chapterService.count()
         val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
 
@@ -55,7 +62,12 @@ class ChapterController(
     ): ApiResponsePaginated<ChapterResponseDto> {
         val page = params.page?:1
         val limit = params.limit?:10
-        val payload = chapterService.getChaptersByCourseId(id, page, limit).map { it.toDto() }
+
+        val chapters = chapterService.getChaptersByCourseId(id, page, limit)
+        val lessonCount = chapterService.countLessonsByChapterIds(chapters.map { it.id })
+        var lessonCountMap = lessonCount.associate { (chapterId, count) -> chapterId to count }
+        val payload = chapters.map { it.toDto(lessonCountMap[it.id] ?: 0) }
+
         val totalCount = chapterService.countByCourseId(id)
         val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
 
@@ -77,11 +89,12 @@ class ChapterController(
             ok = true,
             status = 200,
             message = "Chapter fetched successfully",
-            payload = payload.toDto(),
+            payload = payload.toDtoWithLessons(),
             path = "/v1/chapter/$id"
         )
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     fun createChapter(@Valid @RequestBody chapterDto: CreateChapterDto): ResponseEntity<ApiResponse<ChapterResponseDto>> {
         val payload = chapterService.save(chapterDto)
@@ -94,6 +107,22 @@ class ChapterController(
         ))
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/swap-order-index")
+    fun swapOrderIndex(
+        @Valid @RequestBody swapChapterOrderIndexDto: SwapChapterOrderIndexDto
+    ): ApiResponse<List<ChapterResponseDto>> {
+        val payload = chapterService.swapOrderIndex(swapChapterOrderIndexDto).map { it.toDto() }
+        return ApiResponse(
+            status = 200,
+            ok = true,
+            message = "Courses updated successfully",
+            payload = payload,
+            path = "/v1/course/swap-order-index"
+        )
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/restore/{id}")
     fun restoreChapter(@PathVariable @Min(1) id: Long): ResponseEntity<ApiResponse<ChapterResponseDto>> {
         val payload = chapterService.toggle(id, true)
@@ -106,6 +135,7 @@ class ChapterController(
         ))
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     fun updateChapter(@PathVariable @Min(1) id: Long, @Valid @RequestBody chapterDto: UpdateChapterDto): ApiResponse<ChapterResponseDto> {
         val payload = chapterService.update(id, chapterDto)
@@ -118,6 +148,7 @@ class ChapterController(
         )
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     fun deleteChapter(@PathVariable @Min(1) id: Long): ResponseEntity<ApiResponse<String>> {
         val payload = chapterService.toggle(id, false)

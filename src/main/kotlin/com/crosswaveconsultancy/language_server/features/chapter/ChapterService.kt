@@ -2,7 +2,9 @@ package com.crosswaveconsultancy.language_server.features.chapter
 
 import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
 import com.crosswaveconsultancy.language_server.features.chapter.dto.CreateChapterDto
+import com.crosswaveconsultancy.language_server.features.chapter.dto.SwapChapterOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.UpdateChapterDto
+import com.crosswaveconsultancy.language_server.features.course.CourseEntity
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -25,6 +27,10 @@ class ChapterService(
         return chapterRepository.countByCourseId(courseId)
     }
 
+    fun countLessonsByChapterIds(chapterIds: List<Long>): List<Array<Long>> {
+        return chapterRepository.countLessonsByChapterIds(chapterIds)
+    }
+
     fun getChaptersByCourseId(courseId: Long, page: Int, limit: Int): List<ChapterEntity> {
         val pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.ASC, "orderIndex"))
         return chapterRepository.findByCourseId(courseId, pageable).toList()
@@ -39,14 +45,33 @@ class ChapterService(
     fun save(chapterDto: CreateChapterDto): ChapterEntity {
         val chapter = chapterDto.toEntity()
 
-        // Check if a record with the given order index exists
-        val hasConflict = chapterRepository.existsByCourseIdAndOrderIndex(chapter.courseId, chapter.orderIndex)
-        if (hasConflict) {
-            // if exists then update their order indices by incrementing 1
-            chapterRepository.shiftOrderIndexes(chapter.courseId, chapter.orderIndex)
-        }
+        val newOrderIndex = countByCourseId(chapter.courseId)
+        chapter.orderIndex = newOrderIndex.toInt()
 
-        return chapterRepository.save(chapterDto.toEntity())
+        return chapterRepository.save(chapter)
+    }
+
+    @Transactional
+    fun swapOrderIndex(data: SwapChapterOrderIndexDto): List<ChapterEntity> {
+        val chapters = chapterRepository.findAllById(listOf(data.chapterId1, data.chapterId2))
+        if(chapters.size != 2) throw ResourceNotFoundException("Chapters not found with ids ${data.chapterId1} or ${data.chapterId2}")
+
+        val chapter1 = chapters[0]
+        val chapter2 = chapters[1]
+
+        val chapter1OrderIndex = chapter1.orderIndex
+        val chapter2OrderIndex = chapter2.orderIndex
+
+        // Temporarily change the order index of course 2
+        chapter2.orderIndex = -1
+        chapter1.orderIndex = -2
+        chapterRepository.saveAll(listOf(chapter1, chapter2))
+        chapterRepository.flush()
+
+        // Swap the values now, bypasses unique constraint. That's why a hoola-hoop of temporary value
+        chapter1.orderIndex = chapter2OrderIndex
+        chapter2.orderIndex = chapter1OrderIndex
+        return chapterRepository.saveAll(listOf(chapter1, chapter2))
     }
 
     @Transactional

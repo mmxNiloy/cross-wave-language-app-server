@@ -122,7 +122,7 @@ class CourseController(
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/swap-order-index")
-    fun updateCourseBulk(
+    fun swapOrderIndex(
         @Valid @RequestBody swapCourseOrderIndexDto: SwapCourseOrderIndexDto
     ): ApiResponse<List<CourseResponseDto>> {
         val payload = courseService.swapOrderIndex(swapCourseOrderIndexDto).map { it.toDto() }

@@ -79,9 +79,6 @@ class CourseService(
         val course1 = courses[0]
         val course2 = courses[1]
 
-        println("Course 1: $course1")
-        println("Course 2: $course2")
-
         val course1OrderIndex = course1.orderIndex
         val course2OrderIndex = course2.orderIndex
 

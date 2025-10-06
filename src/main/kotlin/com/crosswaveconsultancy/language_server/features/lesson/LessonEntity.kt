@@ -2,6 +2,7 @@ package com.crosswaveconsultancy.language_server.features.lesson
 
 import com.crosswaveconsultancy.language_server.features.chapter.ChapterEntity
 import com.crosswaveconsultancy.language_server.features.lesson.dto.LessonResponseDto
+import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -43,6 +44,7 @@ data class LessonEntity(
 
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "chapter_id", insertable = false, updatable = false)
+    @JsonBackReference
     val chapter: ChapterEntity?=null,
 ) {
     fun toDto() : LessonResponseDto {
@@ -55,7 +57,6 @@ data class LessonEntity(
             isActive=isActive,
             createdAt=createdAt,
             updatedAt=updatedAt,
-            chapter = chapter?.toMinimalDto(),
         )
     }
 }
