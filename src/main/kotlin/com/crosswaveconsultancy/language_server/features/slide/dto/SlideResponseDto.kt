@@ -8,8 +8,8 @@ data class SlideResponseDto(
     val orderIndex: Int,
     val title: String,
     val isActive: Boolean,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime? = LocalDateTime.now(),
     val section: SectionResponseDto,
     val previewImage: String?
 )

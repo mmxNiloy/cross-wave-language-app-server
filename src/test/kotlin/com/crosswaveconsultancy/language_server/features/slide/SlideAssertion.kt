@@ -13,18 +13,19 @@ fun SlideResponseDto.assertValidSlide() {
     assertThat(isActive).isNotNull.isTrue
     assertThat(createdAt).isNotNull
     assertThat(updatedAt).isNotNull
-    assertThat(sections).isNotNull
-    sections.map {it.assertValidSection()}
+    assertThat(section).isNotNull
+    section.assertValidSection()
 }
 
 fun SectionResponseDto.assertValidSection() {
-    assertThat(layout).isNotNull
+    assertThat(displayName).isNotNull
     assertThat(props).isNotNull
-    assertThat(children).isNotNull
-    children.map {it.assertValidComponent()}
+    assertThat(components).isNotNull
+    components.map {it.assertValidComponent()}
 }
 
 fun ComponentResponseDto.assertValidComponent() {
-    assertThat(type).isNotNull
+    assertThat(displayName).isNotNull
     assertThat(props).isNotNull
+    children?.map {it.assertValidComponent()}
 }

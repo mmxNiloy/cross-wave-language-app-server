@@ -10,7 +10,7 @@ data class LessonResponseDto(
     var chapterId: Long,
     var orderIndex: Int,
     var isActive: Boolean = true,
-    var createdAt: LocalDateTime,
-    var updatedAt: LocalDateTime,
+    var createdAt: LocalDateTime?,
+    var updatedAt: LocalDateTime?,
     val chapter: ChapterResponseMinimalDto?=null,
 )

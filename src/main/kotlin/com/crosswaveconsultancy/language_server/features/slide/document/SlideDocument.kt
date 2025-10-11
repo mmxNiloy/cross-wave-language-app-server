@@ -32,9 +32,9 @@ data class SlideDocument(
     var isActive: Boolean = true,
 
     @CreatedDate
-    var createdAt: LocalDateTime = LocalDateTime.now(),
+    var createdAt: LocalDateTime? = null,
     @LastModifiedDate
-    var updatedAt: LocalDateTime = LocalDateTime.now(),
+    var updatedAt: LocalDateTime? = null,
 
     var data: Map<String, EditorNodeDto> = emptyMap(),
     var previewImage: String? = null

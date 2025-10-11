@@ -2,7 +2,7 @@ package com.crosswaveconsultancy.language_server.features.course
 
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseDto
 import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseMinimalDto
-import com.crosswaveconsultancy.language_server.features.module.assertValidModule
+import com.crosswaveconsultancy.language_server.features.language.assertValidModule
 import org.assertj.core.api.Assertions.assertThat
 
 fun CourseResponseDto.assertValidCourse() {
@@ -13,7 +13,7 @@ fun CourseResponseDto.assertValidCourse() {
     assertThat(isActive).isNotNull()
     assertThat(createdAt).isNotNull()
     assertThat(updatedAt).isNotNull()
-    assertThat(moduleId).isNotNull()
+    assertThat(languageCode).isNotNull.hasSize(2).isLowerCase
     language!!.assertValidModule()
 }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -16,12 +17,14 @@ import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "lesson", uniqueConstraints = [
     UniqueConstraint(columnNames = ["chapter_id", "order_index"])
 ])
+@EntityListeners(AuditingEntityListener::class)
 @SQLRestriction("is_active = true")
 data class LessonEntity(
     @Id
@@ -35,12 +38,12 @@ data class LessonEntity(
     var isActive: Boolean = true,
 
     @CreatedDate
-    @Column(name = "created_at", insertable = false, updatable = false)
-    var createdAt: LocalDateTime= LocalDateTime.now(),
+    @Column(name = "created_at", insertable = false)
+    var createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    var updatedAt: LocalDateTime=LocalDateTime.now(),
+    var updatedAt: LocalDateTime? = null,
 
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "chapter_id", insertable = false, updatable = false)

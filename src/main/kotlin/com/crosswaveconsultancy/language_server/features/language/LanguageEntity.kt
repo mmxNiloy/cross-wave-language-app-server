@@ -4,6 +4,7 @@ import com.crosswaveconsultancy.language_server.features.language.dto.LanguageRe
 import com.crosswaveconsultancy.language_server.features.language.dto.LanguageResponseDto
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -12,11 +13,13 @@ import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.SQLRestriction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "language")
 @SQLRestriction("is_active = true")
+@EntityListeners(AuditingEntityListener::class)
 data class LanguageEntity(
     @Id
     val shortCode: String,
@@ -25,12 +28,12 @@ data class LanguageEntity(
     var description: String = "",
     var isActive: Boolean=true,
     @CreatedDate
-    @Column(name = "created_at", updatable = false, insertable = false)
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
+    @Column(name = "created_at", updatable = false)
+    val createdAt: LocalDateTime? = null,
 
     @LastModifiedDate
     @Column(name="updated_at")
-    val updatedAt: LocalDateTime? = LocalDateTime.now()
+    val updatedAt: LocalDateTime? = null
 ) {
     fun toDto(): LanguageResponseDto {
         return LanguageResponseDto(
