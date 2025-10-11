@@ -29,10 +29,6 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/mmxniloy/cross-wave-language-app-server:stage
-          build-args: |
-            ARG_API_BASE_URL=${{ secrets.API_BASE_URL }}
-            ARG_API_VERSION=${{ secrets.API_VERSION }}
-            ARG_PROD_URL=${{ secrets.PROD_URL }}
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
