@@ -11,17 +11,13 @@ data class CreateSlideDto(
     val title: String,
 
     @field:NotNull
-    val lessonId: Long,
-
-    @field:Valid
-    val sections: List<CreateSectionDto> = emptyList()
+    val lessonId: Long
 ) {
     fun toDocument(orderIndex: Int): SlideDocument {
         return SlideDocument(
             title = title,
             lessonId = lessonId,
-            orderIndex = orderIndex,
-            sections = sections.map { it.toDocument() },
+            orderIndex = orderIndex
         )
     }
 }

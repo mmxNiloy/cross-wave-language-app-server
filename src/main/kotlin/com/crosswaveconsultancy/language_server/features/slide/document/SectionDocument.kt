@@ -6,12 +6,4 @@ data class SectionDocument(
     var layout: String, // "column", "grid", "row"
     var props: Map<String, Any> = emptyMap(), // layout-specific config
     var children: List<ComponentDocument> = emptyList()
-) {
-    fun toDto(): SectionResponseDto {
-        return SectionResponseDto(
-            layout = layout,
-            props = props,
-            children = children.map { it.toDto() }
-        )
-    }
-}
+)

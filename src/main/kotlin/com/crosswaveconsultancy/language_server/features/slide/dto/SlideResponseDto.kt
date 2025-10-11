@@ -10,5 +10,6 @@ data class SlideResponseDto(
     val isActive: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val sections: List<SectionResponseDto>
+    val section: SectionResponseDto,
+    val previewImage: String?
 )

@@ -8,7 +8,5 @@ data class UpdateLessonDto(
     val title: String?,
     val description: String?,
     @field:Min(1)
-    val chapterId: Long?,
-    @field:Min(1)
-    val orderIndex: Int?
+    val chapterId: Long?
 )

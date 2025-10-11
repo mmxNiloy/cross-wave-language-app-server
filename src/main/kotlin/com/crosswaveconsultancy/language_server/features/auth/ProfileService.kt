@@ -4,12 +4,13 @@ import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundExcep
 import com.crosswaveconsultancy.language_server.features.auth.dto.ProfileResponseDto
 import com.crosswaveconsultancy.language_server.features.auth.entity.ProfileEntity
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class ProfileService(
     private val profileRepository: ProfileRepository
 ) {
     fun getProfile(id: String): ProfileEntity {
-        return profileRepository.findById(id).orElseThrow { ResourceNotFoundException("Profile not found with id $id") }
+        return profileRepository.findById(UUID.fromString(id)).orElseThrow { ResourceNotFoundException("Profile not found with id $id") }
     }
 }

@@ -8,7 +8,7 @@ data class ComponentDocument(
 ) {
     fun toDto(): ComponentResponseDto {
         return ComponentResponseDto(
-            type = type,
+            displayName = type,
             props = props
         )
     }

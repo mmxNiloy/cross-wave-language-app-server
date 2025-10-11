@@ -31,7 +31,7 @@ data class LessonEntity(
     var description: String,
     @Column(name = "chapter_id")
     var chapterId: Long,
-    var orderIndex: Int,
+    var orderIndex: Int=0,
     var isActive: Boolean = true,
 
     @CreatedDate

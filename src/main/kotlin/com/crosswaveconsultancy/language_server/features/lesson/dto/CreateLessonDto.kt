@@ -10,15 +10,12 @@ data class CreateLessonDto(
     val description: String,
     @field:Min(1)
     val chapterId: Long,
-    @field:Min(1)
-    val orderIndex: Int,
 ) {
     fun toEntity(): LessonEntity {
         return LessonEntity(
             title = title,
             description = description,
             chapterId = chapterId,
-            orderIndex = orderIndex,
         )
     }
 }

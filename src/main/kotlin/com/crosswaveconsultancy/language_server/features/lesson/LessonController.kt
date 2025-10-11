@@ -2,6 +2,7 @@ package com.crosswaveconsultancy.language_server.features.lesson
 
 import com.crosswaveconsultancy.language_server.features.lesson.dto.CreateLessonDto
 import com.crosswaveconsultancy.language_server.features.lesson.dto.LessonResponseDto
+import com.crosswaveconsultancy.language_server.features.lesson.dto.SwapLessonOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.lesson.dto.UpdateLessonDto
 import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
@@ -13,6 +14,7 @@ import jakarta.validation.constraints.Min
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -86,6 +88,7 @@ class LessonController(
         )
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     fun createLesson(
         @Valid @RequestBody lessonRequestDto: CreateLessonDto
@@ -103,6 +106,24 @@ class LessonController(
         )
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/swap-order-index")
+    fun swapOrderIndex(
+        @Valid @RequestBody swapLessonOrderIndexDto: SwapLessonOrderIndexDto
+    ): ApiResponse<List<LessonResponseDto>> {
+        var payload = lessonService.swapOrderIndex(swapLessonOrderIndexDto).map { it.toDto() }
+
+        return ApiResponse<List<LessonResponseDto>>(
+                status = 200,
+                ok = true,
+                message = "Lesson order index swapped successfully",
+                payload = payload,
+                path = "/v1/lesson/swap-order-index"
+            )
+
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/restore/{id}")
     fun restoreLesson(
         @PathVariable @Min(1) id: Long
@@ -118,6 +139,7 @@ class LessonController(
         )
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     fun updateLesson(
         @Valid @RequestBody lessonUpdateDto: UpdateLessonDto,
@@ -135,6 +157,7 @@ class LessonController(
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     fun deleteLesson(
         @PathVariable @Min(1) id: Long

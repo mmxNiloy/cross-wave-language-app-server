@@ -4,10 +4,11 @@ import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundExcep
 import com.crosswaveconsultancy.language_server.features.slide.document.LessonCounterDocument
 import com.crosswaveconsultancy.language_server.features.slide.document.SlideDocument
 import com.crosswaveconsultancy.language_server.features.slide.dto.CreateSlideDto
+import com.crosswaveconsultancy.language_server.features.slide.dto.SwapSlideOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.UpdateSlideDto
-import com.crosswaveconsultancy.language_server.features.slide.repository.LessonCounterRepository
 import com.crosswaveconsultancy.language_server.features.slide.repository.SlideRepository
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -22,7 +23,7 @@ class SlideService(
     private val mongoTemplate: MongoTemplate
 ) {
     fun getSlides(page: Int, limit: Int): List<SlideDocument> {
-        val pageRequest = PageRequest.of(page - 1, limit)
+        val pageRequest = PageRequest.of(page - 1, limit, Sort.by("orderIndex", "asc"))
         return slideRepository.findByIsActive(pageRequest).toList()
     }
 
@@ -35,7 +36,7 @@ class SlideService(
     }
 
     fun getSlidesByLessonId(lessonId: Long, page: Int, limit: Int): List<SlideDocument> {
-        val pageRequest = PageRequest.of(page - 1, limit)
+        val pageRequest = PageRequest.of(page - 1, limit, Sort.by("orderIndex", "asc"))
         return slideRepository.findByLessonIdAndIsActive(pageRequest, lessonId).toList()
     }
 
@@ -43,6 +44,7 @@ class SlideService(
         return slideRepository.findByIdAndIsActive(id).orElseThrow { ResourceNotFoundException("Slide not found with id $id") }
     }
 
+    @Transactional
     fun createSlide(slideDto: CreateSlideDto): SlideDocument {
         val nextIndex = getNextOrderIndex(slideDto.lessonId)
         val slideDocument = slideDto.toDocument(nextIndex)
@@ -82,16 +84,12 @@ class SlideService(
         val slide = slideRepository.findByIdAndIsActive(id)
             .orElseThrow { ResourceNotFoundException("Slide not found with id $id") }
 
-        // Update title, lessonId, sections if present
+        // Update title, data if present
+        // Data is editor's internal state
+        // TODO: Implement compression and decompression for data
         dto.title?.let { slide.title = it }
-        dto.sections?.let { slide.sections = it.map { it.toDocument() } }
-
-        // Handle reordering if orderIndex is specified
-        dto.orderIndex?.let { newIndex ->
-            if (newIndex != slide.orderIndex) {
-                reorderSlide(slide, newIndex) // reuse reordering logic
-            }
-        }
+        dto.data?.let { slide.data = it }
+        dto.previewImage?.let { slide.previewImage = it }
 
         return slideRepository.save(slide)
     }
@@ -132,5 +130,22 @@ class SlideService(
 
         // Finally set the moved slide’s order
         slide.orderIndex = newIndex
+    }
+
+    @Transactional
+    fun swapOrderIndex(data: SwapSlideOrderIndexDto): List<SlideDocument> {
+        val slides = slideRepository.findAllById(listOf(data.slideId1, data.slideId2))
+
+        if(slides.size != 2) throw ResourceNotFoundException("Courses not found with ids ${data.slideId1} or ${data.slideId2}")
+
+        val slide1 = slides[0]
+        val slide2 = slides[1]
+
+        val slide1OrderIndex = slide1.orderIndex
+        val slide2OrderIndex = slide2.orderIndex
+
+        slide1.orderIndex = slide2OrderIndex
+        slide2.orderIndex = slide1OrderIndex
+        return slideRepository.saveAll(listOf(slide1, slide2))
     }
 }
