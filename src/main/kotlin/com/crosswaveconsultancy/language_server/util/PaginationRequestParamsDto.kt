@@ -9,8 +9,8 @@ data class PaginationRequestParamsDto(
     val page: Int?=1,
 
     @field:Min(2)
-    @field:Max(100)
-    val limit: Int?=10,
+    @field:Max(10000)
+    val limit: Int?=100,
 
     val search: String?="",
     val order: Sort.Direction?,
