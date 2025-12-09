@@ -37,6 +37,9 @@ WORKDIR /usr/src/app
 ARG APP_NAME
 COPY --from=build /usr/src/app/build/libs/*.jar ${APP_NAME}.jar
 
+ENV SPRING_PROFILES_ACTIVE=dev
+ENV SPRING_CONFIG_LOCATION=classpath:/,file:/config/application-dev.properties
+
 # Expose Spring Boot port
 EXPOSE 8080
 
