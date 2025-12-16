@@ -97,7 +97,7 @@ data class ChapterEntity(
             createdAt = createdAt,
             updatedAt = updatedAt,
             lessonCount = lessons.size.toLong(),
-            lessons = lessons.map { it.toDto() },
+            lessons = lessons.map { it.toMinimalDto() },
         )
     }
 

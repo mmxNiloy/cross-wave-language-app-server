@@ -4,8 +4,6 @@ import com.crosswaveconsultancy.language_server.features.chapter.dto.ChapterResp
 import com.crosswaveconsultancy.language_server.features.chapter.dto.CreateChapterDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.SwapChapterOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.UpdateChapterDto
-import com.crosswaveconsultancy.language_server.features.course.dto.CourseResponseDto
-import com.crosswaveconsultancy.language_server.features.course.dto.SwapCourseOrderIndexDto
 import com.crosswaveconsultancy.language_server.util.ApiResponse
 import com.crosswaveconsultancy.language_server.util.ApiResponsePaginated
 import com.crosswaveconsultancy.language_server.util.PaginationRequestParamsDto
@@ -39,9 +37,9 @@ class ChapterController(
         val page = params.page?:1
         val limit = params.limit?:10
         val chapters = chapterService.getChapters(page, limit)
-        val lessonCount = chapterService.countLessonsByChapterIds(chapters.map { it.id })
-        var lessonCountMap = lessonCount.associate { (chapterId, count) -> chapterId to count }
-        val payload = chapters.map { it.toDto(lessonCountMap[it.id] ?: 0) }
+//        val lessonCount = chapterService.countLessonsByChapterIds(chapters.map { it.id })
+//        var lessonCountMap = lessonCount.associate { (chapterId, count) -> chapterId to count }
+        val payload = chapters.map { it.toDtoWithLessons() }
         val totalCount = chapterService.count()
         val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
 
@@ -122,18 +120,18 @@ class ChapterController(
         )
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/restore/{id}")
-    fun restoreChapter(@PathVariable @Min(1) id: Long): ResponseEntity<ApiResponse<ChapterResponseDto>> {
-        val payload = chapterService.toggle(id, true)
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse(
-            ok = true,
-            status = 200,
-            message = "Chapter restored successfully",
-            payload = payload.toDto(),
-            path = "/v1/chapter/$id"
-        ))
-    }
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @PatchMapping("/restore/{id}")
+//    fun restoreChapter(@PathVariable @Min(1) id: Long): ResponseEntity<ApiResponse<ChapterResponseDto>> {
+//        val payload = chapterService.delete(id, true)
+//        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse(
+//            ok = true,
+//            status = 200,
+//            message = "Chapter restored successfully",
+//            payload = payload.toDto(),
+//            path = "/v1/chapter/$id"
+//        ))
+//    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
@@ -150,14 +148,8 @@ class ChapterController(
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    fun deleteChapter(@PathVariable @Min(1) id: Long): ResponseEntity<ApiResponse<String>> {
-        val payload = chapterService.toggle(id, false)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse(
-            ok = true,
-            status = 204,
-            message = "Chapter deleted successfully",
-            payload = null,
-            path = "/v1/chapter/$id"
-        ))
+    fun deleteChapter(@PathVariable @Min(1) id: Long): ResponseEntity<Void> {
+        chapterService.delete(id)
+        return ResponseEntity.noContent().build()
     }
 }

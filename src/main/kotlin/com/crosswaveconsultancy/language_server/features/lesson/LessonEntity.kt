@@ -2,6 +2,7 @@ package com.crosswaveconsultancy.language_server.features.lesson
 
 import com.crosswaveconsultancy.language_server.features.chapter.ChapterEntity
 import com.crosswaveconsultancy.language_server.features.lesson.dto.LessonResponseDto
+import com.crosswaveconsultancy.language_server.features.lesson.dto.LessonResponseMinimalDto
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
@@ -21,9 +22,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "lesson", uniqueConstraints = [
-    UniqueConstraint(columnNames = ["chapter_id", "order_index"])
-])
+@Table(
+    name = "lesson", uniqueConstraints = [
+        UniqueConstraint(columnNames = ["chapter_id", "order_index"])
+    ]
+)
 @EntityListeners(AuditingEntityListener::class)
 @SQLRestriction("is_active = true")
 data class LessonEntity(
@@ -34,7 +37,7 @@ data class LessonEntity(
     var description: String,
     @Column(name = "chapter_id")
     var chapterId: Long,
-    var orderIndex: Int=0,
+    var orderIndex: Int = 0,
     var isActive: Boolean = true,
 
     @CreatedDate
@@ -48,18 +51,26 @@ data class LessonEntity(
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "chapter_id", insertable = false, updatable = false)
     @JsonBackReference
-    val chapter: ChapterEntity?=null,
+    val chapter: ChapterEntity? = null,
 ) {
-    fun toDto() : LessonResponseDto {
+    fun toDto(): LessonResponseDto {
         return LessonResponseDto(
-            id=id,
-            title=title,
-            description=description,
-            chapterId=chapterId,
-            orderIndex=orderIndex,
-            isActive=isActive,
-            createdAt=createdAt,
-            updatedAt=updatedAt,
+            id = id,
+            title = title,
+            description = description,
+            chapterId = chapterId,
+            orderIndex = orderIndex,
+            isActive = isActive,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+    }
+
+    fun toMinimalDto(): LessonResponseMinimalDto {
+        return LessonResponseMinimalDto(
+            id = id,
+            title = title,
+            orderIndex = orderIndex,
         )
     }
 }

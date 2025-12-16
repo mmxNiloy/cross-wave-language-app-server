@@ -1,7 +1,6 @@
 package com.crosswaveconsultancy.language_server.features.course
 
 import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
-import com.crosswaveconsultancy.language_server.features.course.dto.CourseOrderingDto
 import com.crosswaveconsultancy.language_server.features.course.dto.CreateCourseDto
 import com.crosswaveconsultancy.language_server.features.course.dto.SwapCourseOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.course.dto.UpdateCourseDto
@@ -94,11 +93,7 @@ class CourseService(
         return courseRepository.saveAll(listOf(course1, course2))
     }
 
-    @Transactional
-    fun toggle(id: Long, isActive: Boolean): CourseEntity {
-        val course =
-            courseRepository.findById(id).orElseThrow { ResourceNotFoundException("Course not found with id $id") }
-        course.isActive = isActive
-        return courseRepository.save(course)
+    fun delete(id: Long) {
+        return courseRepository.deleteById(id)
     }
 }

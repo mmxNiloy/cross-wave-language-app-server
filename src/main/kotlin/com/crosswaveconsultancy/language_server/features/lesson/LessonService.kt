@@ -1,7 +1,6 @@
 package com.crosswaveconsultancy.language_server.features.lesson
 
 import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundException
-import com.crosswaveconsultancy.language_server.features.course.CourseEntity
 import com.crosswaveconsultancy.language_server.features.lesson.dto.SwapLessonOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.lesson.dto.CreateLessonDto
 import com.crosswaveconsultancy.language_server.features.lesson.dto.UpdateLessonDto
@@ -86,10 +85,7 @@ class LessonService(
         return lessonRepository.saveAll(listOf(lesson1, lesson2))
     }
 
-    @Transactional
-    fun toggle(id: Long, isActive: Boolean): LessonEntity {
-        val lesson = getLessonById(id)
-        lesson.isActive = isActive
-        return lessonRepository.save(lesson)
+    fun delete(id: Long) {
+        return lessonRepository.deleteById(id)
     }
 }
