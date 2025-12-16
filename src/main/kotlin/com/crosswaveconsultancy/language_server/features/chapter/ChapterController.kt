@@ -62,9 +62,7 @@ class ChapterController(
         val limit = params.limit?:10
 
         val chapters = chapterService.getChaptersByCourseId(id, page, limit)
-        val lessonCount = chapterService.countLessonsByChapterIds(chapters.map { it.id })
-        var lessonCountMap = lessonCount.associate { (chapterId, count) -> chapterId to count }
-        val payload = chapters.map { it.toDto(lessonCountMap[it.id] ?: 0) }
+        val payload = chapters.map { it.toDtoWithLessons() }
 
         val totalCount = chapterService.countByCourseId(id)
         val paginationMetadata = buildPaginationMetadata(page, limit, payload.size, totalCount)
