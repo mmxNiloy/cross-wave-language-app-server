@@ -12,7 +12,6 @@ import com.crosswaveconsultancy.language_server.util.buildPaginationMetadata
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.http.HttpStatus
@@ -162,20 +161,14 @@ class SlideController(
         )
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/restore/{id}")
-    fun restoreSlide(
-        @PathVariable @Pattern(regexp = "^[a-fA-F0-9]{24}$", message = "Invalid ObjectId format") id: String
-    ): ApiResponse<SlideResponseDto> {
-        val slide = slideService.toggleSlide(id, true)
-        return ApiResponse(
-            ok = true,
-            status = 200,
-            message = "Slide restored successfully",
-            payload = slide.toDto(),
-            path = "/v1/slide/$id"
-        )
-    }
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @PatchMapping("/restore/{id}")
+//    fun restoreSlide(
+//        @PathVariable @Pattern(regexp = "^[a-fA-F0-9]{24}$", message = "Invalid ObjectId format") id: String
+//    ): ResponseEntity<Void> {
+//        slideService.delete(id, true)
+//        return ResponseEntity.noContent().build()
+//    }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
@@ -197,14 +190,8 @@ class SlideController(
     @DeleteMapping("/{id}")
     fun deleteSlide(
         @PathVariable @Pattern(regexp = "^[a-fA-F0-9]{24}$", message = "Invalid ObjectId format") id: String
-    ): ResponseEntity<ApiResponse<String>> {
-        val slide = slideService.toggleSlide(id, false)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse(
-            ok = true,
-            status = 204,
-            message = "Slide deleted successfully",
-            payload = "Slide deleted successfully",
-            path = "/v1/slide/$id"
-        ))
+    ): ResponseEntity<Void> {
+        slideService.delete(id)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

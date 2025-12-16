@@ -95,11 +95,10 @@ class SlideService(
     }
 
     @Transactional
-    fun toggleSlide(id: String, isActive: Boolean): SlideDocument {
+    fun delete(id: String) {
         var slide = getSlideById(id)
-        slide.isActive = isActive
-        updateInactiveCount(slide.lessonId, isActive)
-        return slideRepository.save(slide)
+        updateInactiveCount(slide.lessonId, false)
+        return slideRepository.delete(slide)
     }
 
 

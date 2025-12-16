@@ -4,7 +4,6 @@ import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundExcep
 import com.crosswaveconsultancy.language_server.features.chapter.dto.CreateChapterDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.SwapChapterOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.chapter.dto.UpdateChapterDto
-import com.crosswaveconsultancy.language_server.features.course.CourseEntity
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -74,11 +73,8 @@ class ChapterService(
         return chapterRepository.saveAll(listOf(chapter1, chapter2))
     }
 
-    @Transactional
-    fun toggle(id: Long, isActive: Boolean): ChapterEntity {
-        val chapter = getChapterById(id)
-        chapter.isActive = isActive
-        return chapterRepository.save(chapter)
+    fun delete(id: Long) {
+        return chapterRepository.deleteById(id)
     }
 
     @Transactional

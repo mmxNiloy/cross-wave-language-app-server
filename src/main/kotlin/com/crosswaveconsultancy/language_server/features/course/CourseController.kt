@@ -106,18 +106,18 @@ class CourseController(
         )
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/restore/{id}")
-    fun restoreCourse(@PathVariable id: Long): ApiResponse<CourseResponseDto> {
-        val payload = courseService.toggle(id, true)
-        return ApiResponse(
-            status = 200,
-            ok = true,
-            message = "Course restored successfully",
-            path = "/v1/course/$id",
-            payload = payload.toDto()
-        )
-    }
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @PatchMapping("/restore/{id}")
+//    fun restoreCourse(@PathVariable id: Long): ApiResponse<CourseResponseDto> {
+//        val payload = courseService.delete(id, true)
+//        return ApiResponse(
+//            status = 200,
+//            ok = true,
+//            message = "Course restored successfully",
+//            path = "/v1/course/$id",
+//            payload = payload.toDto()
+//        )
+//    }
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -153,16 +153,8 @@ class CourseController(
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    fun deleteCourse(@PathVariable id: Long): ResponseEntity<ApiResponse<String>> {
-        courseService.toggle(id, false)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
-            ApiResponse(
-                status = 204,
-                ok = true,
-                message = "Course deleted successfully",
-                path = "/v1/course/$id",
-                payload = "Course deleted successfully"
-            )
-        )
+    fun deleteCourse(@PathVariable id: Long): ResponseEntity<Void> {
+        courseService.delete(id)
+        return ResponseEntity.noContent().build()
     }
 }
