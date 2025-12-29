@@ -2,6 +2,7 @@ package com.crosswaveconsultancy.language_server.features.slide.document
 
 import com.crosswaveconsultancy.language_server.features.slide.dto.ComponentResponseDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.SectionResponseDto
+import com.crosswaveconsultancy.language_server.features.slide.dto.SlideResponseBaseDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.SlideResponseDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.editor.EditorNodeDto
 import org.bson.types.ObjectId
@@ -54,6 +55,22 @@ data class SlideDocument(
             createdAt = createdAt,
             updatedAt = updatedAt,
             previewImage = previewImage,
+            section = section
+        )
+    }
+
+    fun toMiniDto(): SlideResponseBaseDto {
+        var section: SectionResponseDto = data["ROOT"]?.toSectionDto(data, true)?:SectionResponseDto(
+            displayName = "Unknown",
+            props = emptyMap(),
+            components = emptyList()
+        )
+
+        return SlideResponseBaseDto(
+            id,
+            lessonId,
+            orderIndex,
+            title,
             section = section
         )
     }

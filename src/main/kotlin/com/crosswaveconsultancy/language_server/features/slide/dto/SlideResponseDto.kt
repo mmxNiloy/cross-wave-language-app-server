@@ -2,14 +2,20 @@ package com.crosswaveconsultancy.language_server.features.slide.dto
 
 import java.time.LocalDateTime
 
-data class SlideResponseDto(
-    val id: String,
-    val lessonId: Long,
-    val orderIndex: Int,
-    val title: String,
+open class SlideResponseDto(
+    id: String,
+    lessonId: Long,
+    orderIndex: Int,
+    title: String,
+    section: SectionResponseDto,
     val isActive: Boolean,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime? = LocalDateTime.now(),
-    val section: SectionResponseDto,
     val previewImage: String?
+): SlideResponseBaseDto(
+    id,
+    lessonId,
+    orderIndex,
+    title,
+    section
 )
