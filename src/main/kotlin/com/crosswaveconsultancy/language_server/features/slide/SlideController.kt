@@ -2,6 +2,7 @@ package com.crosswaveconsultancy.language_server.features.slide
 
 import com.crosswaveconsultancy.language_server.features.slide.document.SlideDocument
 import com.crosswaveconsultancy.language_server.features.slide.dto.CreateSlideDto
+import com.crosswaveconsultancy.language_server.features.slide.dto.SlideResponseBaseDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.SlideResponseDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.SwapSlideOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.UpdateSlideDto
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "Slide Management", description = "CRUD for slides. Each slide is associated with a lesson. Each slide is composed of sections. Sections are UI components with layouts that can be used to display content. Each section in turn holds some components. Components are units of content that can be displayed in a section. Components can be of different types such as text, image, audio, video, mcq, etc. Components have differing properties that define their behavior and appearance.")
@@ -36,12 +38,13 @@ class SlideController(
 ) {
     @GetMapping
     fun getSlides(
-        @Valid @ParameterObject params: PaginationRequestParamsDto
-    ): ApiResponsePaginated<SlideResponseDto> {
+        @Valid @ParameterObject params: PaginationRequestParamsDto,
+        @Valid @RequestParam shouldMinify: Boolean? = false
+    ): ApiResponsePaginated<SlideResponseBaseDto> {
         val page = params.page?:1
         val limit = params.limit?:10
 
-        val slides = slideService.getSlides(page, limit).map {it.toDto()}
+        val slides = slideService.getSlides(page, limit, shouldMinify)
         val count = slideService.count()
 
         val paginationMetadata = buildPaginationMetadata(page, limit, slides.size, count)
@@ -83,12 +86,13 @@ class SlideController(
     @GetMapping("/lesson/{id}")
     fun getSlidesByLessonId(
         @Valid @ParameterObject params: PaginationRequestParamsDto,
-        @PathVariable @Min(1) id: Long
-    ): ApiResponsePaginated<SlideResponseDto> {
+        @PathVariable @Min(1) id: Long,
+        @Valid @RequestParam shouldMinify: Boolean? = false
+    ): ApiResponsePaginated<SlideResponseBaseDto> {
         val page = params.page?:1
         val limit = params.limit?:10
 
-        val slides = slideService.getSlidesByLessonId(id, page, limit).map {it.toDto()}
+        val slides = slideService.getSlidesByLessonId(id, page, limit, shouldMinify)
         val count = slideService.countByLessonId(id)
 
         val paginationMetadata = buildPaginationMetadata(page, limit, slides.size, count)
@@ -120,14 +124,15 @@ class SlideController(
 
     @GetMapping("/{id}")
     fun getSlideById(
-        @PathVariable @Pattern(regexp = "^[a-fA-F0-9]{24}$", message = "Invalid ObjectId format") id: String
-    ): ApiResponse<SlideResponseDto> {
-        val slide = slideService.getSlideById(id)
-        return ApiResponse<SlideResponseDto>(
+        @PathVariable @Pattern(regexp = "^[a-fA-F0-9]{24}$", message = "Invalid ObjectId format") id: String,
+        @Valid @RequestParam shouldMinify: Boolean? = false
+    ): ApiResponse<SlideResponseBaseDto> {
+        val slide = slideService.getSlideById(id, shouldMinify)
+        return ApiResponse<SlideResponseBaseDto>(
             ok = true,
             status = 200,
             message = "Slide fetched successfully",
-            payload = slide.toDto(),
+            payload = slide,
             path = "/v1/slide/$id"
         )
     }

@@ -4,6 +4,8 @@ import com.crosswaveconsultancy.language_server.exceptions.ResourceNotFoundExcep
 import com.crosswaveconsultancy.language_server.features.slide.document.LessonCounterDocument
 import com.crosswaveconsultancy.language_server.features.slide.document.SlideDocument
 import com.crosswaveconsultancy.language_server.features.slide.dto.CreateSlideDto
+import com.crosswaveconsultancy.language_server.features.slide.dto.SlideResponseBaseDto
+import com.crosswaveconsultancy.language_server.features.slide.dto.SlideResponseDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.SwapSlideOrderIndexDto
 import com.crosswaveconsultancy.language_server.features.slide.dto.UpdateSlideDto
 import com.crosswaveconsultancy.language_server.features.slide.repository.SlideRepository
@@ -22,9 +24,15 @@ class SlideService(
     private val slideRepository: SlideRepository,
     private val mongoTemplate: MongoTemplate
 ) {
-    fun getSlides(page: Int, limit: Int): List<SlideDocument> {
+    fun getSlides(page: Int, limit: Int, shouldMinify: Boolean? = false): List<SlideResponseBaseDto> {
         val pageRequest = PageRequest.of(page - 1, limit, Sort.by("orderIndex", "asc"))
-        return slideRepository.findByIsActive(pageRequest).toList()
+        val slides = slideRepository.findByIsActive(pageRequest)
+
+        if(shouldMinify == true) {
+            return slides.toList().map{it.toMiniDto()}
+        }
+
+        return slides.toList().map{it.toDto()}
     }
 
     fun count(): Long {
@@ -35,6 +43,17 @@ class SlideService(
         return slideRepository.countByLessonIdAndIsActive(lessonId)
     }
 
+    fun getSlidesByLessonId(lessonId: Long, page: Int, limit: Int, shouldMinify: Boolean? = false): List<SlideResponseBaseDto> {
+        val pageRequest = PageRequest.of(page - 1, limit, Sort.by("orderIndex", "asc"))
+        val slides = slideRepository.findByLessonIdAndIsActive(pageRequest, lessonId)
+
+        if(shouldMinify == true) {
+            return slides.toList().map{it.toMiniDto()}
+        }
+
+        return slides.toList().map{it.toDto()}
+    }
+
     fun getSlidesByLessonId(lessonId: Long, page: Int, limit: Int): List<SlideDocument> {
         val pageRequest = PageRequest.of(page - 1, limit, Sort.by("orderIndex", "asc"))
         return slideRepository.findByLessonIdAndIsActive(pageRequest, lessonId).toList()
@@ -42,6 +61,16 @@ class SlideService(
 
     fun getSlideById(id: String): SlideDocument {
         return slideRepository.findByIdAndIsActive(id).orElseThrow { ResourceNotFoundException("Slide not found with id $id") }
+    }
+
+    fun getSlideById(id: String, shouldMinify: Boolean? = false): SlideResponseBaseDto {
+        val slide = slideRepository.findByIdAndIsActive(id).orElseThrow { ResourceNotFoundException("Slide not found with id $id") }
+
+        if(shouldMinify == true) {
+            return slide.toMiniDto()
+        }
+
+        return slide.toDto()
     }
 
     @Transactional
