@@ -31,7 +31,7 @@ class UserProgressController(private val userProgressService: UserProgressServic
     @GetMapping
     fun getUserProgress(
         @RequestHeader("X-Firebase-User-Id") @NotNull @NotBlank firebaseUserId: String,
-        @Valid @ParameterObject @RequestParam filters: UserProgressFilterDto
+        @Valid @ParameterObject filters: UserProgressFilterDto
     ): ApiResponse<List<UserProgressDto>> {
         val payload = userProgressService.getUserProgress(firebaseUserId, filters)
 
